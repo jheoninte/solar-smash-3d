@@ -1,0 +1,1 @@
+{"name":"solar-smash-3d","private":true,"version":"0.1.0","type":"module","description":"Development scaffold for the Solar Smash 3D prototype package.","engines":{"node":">=18"},"scripts":{"dev":"node scripts/dev-server.mjs","start":"node scripts/dev-server.mjs","build":"node scripts/build-static.mjs","check":"node scripts/check-repo.mjs"}}
