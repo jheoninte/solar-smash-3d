@@ -1,0 +1,19 @@
+{
+  "status": "proposal-not-runtime",
+  "profileId": "challenge-v1",
+  "protectedMissionIds": ["m1", "m2", "m3", "m4", "m5", "m6"],
+  "cooldownMs": { "meteor": 700, "laser": 450, "missile": 1100 },
+  "missions": [
+    { "id": "m7", "title": "운석 연속 투하", "mode": "planet", "req": { "weapon": "meteor", "count": 30 }, "reward": 250, "stars": { "threeStarMaxMs": 30000, "twoStarMaxMs": 45000 } },
+    { "id": "m8", "title": "정밀 레이저 작전", "mode": "planet", "req": { "weapon": "laser", "count": 60 }, "reward": 300, "stars": { "threeStarMaxMs": 35000, "twoStarMaxMs": 55000 } },
+    { "id": "m9", "title": "미사일 집중 폭격", "mode": "planet", "req": { "weapon": "missile", "damage": 780 }, "reward": 350, "stars": { "threeStarMaxMs": 45000, "twoStarMaxMs": 65000 } },
+    { "id": "m10", "title": "행성 붕괴 작전", "mode": "planet", "req": { "damage": 1000 }, "reward": 400, "stars": { "threeStarMaxMs": 55000, "twoStarMaxMs": 80000 } },
+    { "id": "m11", "title": "쌍행성 공략", "mode": "solar", "req": { "weapon": "missile", "targetCounts": { "1": 15, "2": 15 }, "excludeTargetIndex": [0] }, "reward": 500, "stars": { "threeStarMaxMs": 50000, "twoStarMaxMs": 75000 } },
+    { "id": "m12", "title": "무기 마스터", "mode": "planet", "req": { "weaponCounts": { "meteor": 12, "laser": 18, "missile": 10 } }, "reward": 600, "stars": { "threeStarMaxMs": 45000, "twoStarMaxMs": 70000 } }
+  ],
+  "skins": [
+    { "id": "glacier", "name": "빙하 행성", "price": 700, "direction": "빙청색 바다와 흰 얼음, 기존 earth와 구분되는 차가운 팔레트" },
+    { "id": "dune", "name": "황금 사막", "price": 900, "direction": "황금빛 사막과 짙은 갈색 암석, 기존 ember와 구분되는 황토색 팔레트" },
+    { "id": "nebula", "name": "성운 행성", "price": 1100, "direction": "짙은 남색 바다와 분홍 성운 지형, 기존 aurora와 구분되는 팔레트" }
+  ]
+}

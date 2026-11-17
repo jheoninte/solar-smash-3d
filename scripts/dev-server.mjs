@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readVendorAsset, vendorAssets } from './vendor-assets.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const entryFile = path.join(rootDir, 'web-prototype', 'index.html');
@@ -21,14 +22,25 @@ const mime = {
 };
 
 function resolveTarget(urlPath) {
+  urlPath = decodeURIComponent(new URL(urlPath, 'http://localhost').pathname);
   if (urlPath === '/' || urlPath === '/index.html') return entryFile;
+  if (urlPath === '/vendor/three.module.js') return path.join(rootDir, 'node_modules/three/build/three.module.js');
   const safePath = path.normalize(urlPath.replace(/^\/+/, ''));
-  return path.join(rootDir, safePath);
+  const target = path.resolve(rootDir, safePath);
+  if (!target.startsWith(rootDir + path.sep)) throw new Error('Invalid path');
+  return target;
 }
 
 createServer(async (req, res) => {
-  const target = resolveTarget(req.url || '/');
   try {
+    const pathname = new URL(req.url || '/', 'http://localhost').pathname;
+    const asset = pathname.startsWith('/vendor/') ? pathname.slice('/vendor/'.length) : null;
+    if (asset && Object.hasOwn(vendorAssets, asset)) {
+      res.writeHead(200, { 'Content-Type': mime[path.extname(asset)] || 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(await readVendorAsset(import.meta.url, asset));
+      return;
+    }
+    const target = resolveTarget(req.url || '/');
     const info = await stat(target);
     const filePath = info.isDirectory() ? path.join(target, 'index.html') : target;
     const body = await readFile(filePath);

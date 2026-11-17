@@ -1,0 +1,8 @@
+{
+  "version": "8.3.0",
+  "sha256": {
+    "Rewarded/AdRewardExecutor.swift": "6fefa2845802464554880f5f5ee0a0448327e19d92b31094b26c6626f441e73c",
+    "Interstitial/AdInterstitialExecutor.swift": "6f81bbf64d6fba30275bc9f67b60da1db5116237126520f38c03410928943b18",
+    "AdMobPlugin.swift": "a07c10f08ce52abe0637d83bb685deb9e02502f81bb831856d03af75946852f0"
+  }
+}

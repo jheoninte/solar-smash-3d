@@ -1,1 +1,35 @@
-{"name":"solar-smash-3d","private":true,"version":"0.1.0","type":"module","description":"Development scaffold for the Solar Smash 3D prototype package.","engines":{"node":">=18"},"scripts":{"dev":"node scripts/dev-server.mjs","start":"node scripts/dev-server.mjs","build":"node scripts/build-static.mjs","check":"node scripts/check-repo.mjs"}}
+{
+  "name": "solar-smash-3d",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Development scaffold for the Solar Smash 3D prototype package.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "postinstall": "node scripts/patch-admob-ios.mjs",
+    "native:patch": "node scripts/patch-admob-ios.mjs",
+    "dev": "node scripts/dev-server.mjs",
+    "start": "node scripts/dev-server.mjs",
+    "build": "node scripts/build-static.mjs",
+    "check": "node scripts/check-repo.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "balance:audit": "node scripts/audit-balance.mjs",
+    "native:check": "node scripts/check-native.mjs",
+    "native:prepare": "npm run build && npm run native:check",
+    "gemini:handoff": "node scripts/create-gemini-handoff.mjs"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "8.3.0",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.6.2",
+    "@capacitor/preferences": "8.0.1",
+    "solar-smash-store-kit": "file:native/ios/SolarSmashStoreKit",
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

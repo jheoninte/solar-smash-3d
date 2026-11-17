@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 6,
+  "storageKey": "solar-smash-3d.save",
+  "defaults": {
+    "mode": "planet",
+    "weapon": "meteor",
+    "stats": {
+      "damage": 0,
+      "impactCount": 0
+    },
+    "session": {
+      "recentImpacts": []
+    },
+    "progression": {
+      "coins": 0,
+      "completedMissions": [],
+      "rewardedMissionIds": [],
+      "missionRecords": {},
+      "ownedSkins": ["earth"],
+      "equippedSkin": "earth"
+    }
+  },
+  "runtimeOnly": ["missionRun", "runId", "capabilities"],
+  "impact": {
+    "fields": [
+      "weapon",
+      "mode",
+      "targetIndex",
+      "localPosition",
+      "size",
+      "damage",
+      "createdAt"
+    ],
+    "localPosition": { "x": "number", "y": "number", "z": "number" },
+    "sizeUnit": "world units",
+    "targetIndex": "planet: 0; solar: 0 (sun), 1, 2"
+  }
+}

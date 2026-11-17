@@ -1,6 +1,15 @@
 node_modules/
+.cache/
 dist/
 .DS_Store
 Thumbs.db
 *.log
 .vscode/
+handoff/
+ios/App/Pods/
+ios/App/build/
+ios/**/DerivedData/
+*.xcuserstate
+xcuserdata/
+*.p12
+*.mobileprovision

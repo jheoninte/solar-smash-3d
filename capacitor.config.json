@@ -1,0 +1,8 @@
+{
+  "appId": "dev.solarsmash.prototype",
+  "appName": "Solar Smash 3D",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "never"
+  }
+}

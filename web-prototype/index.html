@@ -1,1 +1,125 @@
-<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Solar Smash 3D</title><style>body{margin:0;background:#020617;color:#fff;font:14px Arial}#ui{position:fixed;left:12px;top:12px;width:300px;background:#0f172acc;padding:14px;border-radius:14px}button{margin:4px;padding:8px 10px;border:0;border-radius:8px;background:#2563eb;color:#fff}canvas{display:block}.muted{color:#94a3b8;font-size:12px}</style><div id=ui><h3>Solar Smash 3D</h3><div><button id=planetBtn>Planet</button><button id=solarBtn>Solar</button><button id=resetBtn>Reset</button></div><div><button data-w=meteor>Meteor</button><button data-w=laser>Laser</button><button data-w=missile>Missile</button></div><p id=stat></p><p class=muted>클릭으로 크레이터를 남기고 누적 데미지를 확인합니다.</p></div><canvas id=c></canvas><script>const c=document.getElementById("c"),x=c.getContext("2d"),stat=document.getElementById("stat");let mode="planet",weapon="meteor",hits=[],damage=0;function rs(){c.width=innerWidth;c.height=innerHeight}function drawBody(t,i){let cx=c.width*.68,cy=c.height*.54,r=Math.min(c.width,c.height)*(i?0.06:0.14);if(mode==="solar"&&i){cx+=Math.cos(t/800+i)*150;cy+=Math.sin(t/900+i)*90}x.beginPath();x.fillStyle=i?"#38bdf8":"#f97316";x.arc(cx,cy,r,0,7);x.fill();hits.forEach(h=>{if(Math.hypot(h.x-cx,h.y-cy)<r+h.s){x.fillStyle="rgba(15,23,42,.8)";x.beginPath();x.arc(h.x,h.y,h.s*.7,0,7);x.fill();x.fillStyle="rgba(251,146,60,.6)";x.beginPath();x.arc(h.x,h.y,h.s*.35,0,7);x.fill()}})}function loop(t){x.fillStyle="#020617";x.fillRect(0,0,c.width,c.height);for(let i=0;i<80;i++)x.fillRect((i*131)%c.width,(i*67)%c.height,2,2);drawBody(t,0);if(mode==="solar"){drawBody(t,1);drawBody(t,2)}stat.textContent="Mode "+mode+" · Weapon "+weapon+" · Damage "+damage;requestAnimationFrame(loop)}c.onclick=e=>{const b=c.getBoundingClientRect(),s=weapon==="laser"?10:weapon==="missile"?26:18;hits.push({x:e.clientX-b.left,y:e.clientY-b.top,s:s});damage+=s};planetBtn.onclick=()=>mode="planet";solarBtn.onclick=()=>mode="solar";resetBtn.onclick=()=>{hits=[];damage=0};document.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>weapon=b.dataset.w);onresize=rs;rs();requestAnimationFrame(loop);</script>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#020617">
+  <title>Solar Smash 3D</title>
+  <script type="importmap">
+    {"imports":{"three":"../vendor/three.module.js","@capacitor/core":"../vendor/capacitor-core.js","@capacitor/preferences":"../vendor/capacitor-preferences/index.js","@capacitor/haptics":"../vendor/capacitor-haptics/index.js"}}
+  </script>
+  <link rel="stylesheet" href="../web-prototype/style.css">
+</head>
+<body>
+  <canvas id="c" aria-label="자동공격과 탭으로 천체를 파괴하는 3D 게임"></canvas>
+  <div id="aim-reticle" aria-hidden="true" hidden></div>
+  <div id="ui">
+    <header class="hud-panel">
+      <div class="heading-row"><h1>Solar Smash <span>3D</span></h1><span id="player-coins" class="wallet">0 코인</span><button id="btn-open-settings" class="quiet" aria-label="설정">설정</button></div>
+      <div class="button-row">
+        <button id="planetBtn" data-mode="planet">Planet</button>
+        <button id="solarBtn" data-mode="solar">Solar</button>
+        <button id="btn-open-missions" class="primary">미션</button>
+        <button id="btn-open-shop">상점</button>
+        <button id="resetBtn" aria-label="전투 초기화">Reset</button>
+      </div>
+      <div class="status-row"><span id="play-kind">SANDBOX</span><p id="stat"></p></div>
+      <section id="mission-hud" hidden aria-label="진행 중인 미션">
+        <div class="heading-row"><h2 id="mission-hud-title"></h2><span id="mission-hud-progress" aria-live="polite"></span></div>
+        <p id="mission-hud-time" class="mission-hud-time"></p>
+        <progress id="mission-progress" value="0" max="1" aria-label="미션 진행도"></progress>
+        <details class="mission-details">
+          <summary>목표 보기 · 미션 종료</summary>
+          <p id="mission-goal"></p>
+          <button id="btn-mission-exit" class="quiet">미션 종료 · 샌드박스로</button>
+        </details>
+      </section>
+      <p id="save-status" class="notice" role="status" hidden>저장할 수 없습니다. 진행도와 변경 사항은 현재 실행 중에만 유지됩니다.</p>
+      <p id="error" class="notice" role="alert" hidden></p>
+    </header>
+    <footer class="weapon-panel">
+      <p class="hint">자동공격은 조준점으로 · 드래그 회전 · 탭으로 직접 공격</p>
+      <div class="weapon-row">
+        <button data-w="meteor"><strong>Meteor</strong><span>운석</span></button>
+        <button data-w="laser"><strong>Laser</strong><span>즉시 타격</span></button>
+        <button data-w="missile"><strong>Missile</strong><span>광역 폭발</span></button>
+      </div>
+      <button id="btn-auto-fire" class="wide auto-fire" aria-pressed="false">자동공격 시작</button>
+    </footer>
+  </div>
+  <dialog id="mission-select-overlay" aria-labelledby="mission-list-title">
+    <div class="dialog-body">
+      <p class="eyebrow">CHOOSE YOUR CHALLENGE</p>
+      <h2 id="mission-list-title">미션 선택</h2>
+      <p class="muted">첫 완료 보상은 미션마다 한 번 지급됩니다.<br>진행 중 목록을 열거나 모드를 바꾸면 미션이 종료됩니다.</p>
+      <ul id="mission-list"></ul>
+      <button id="btn-sandbox" class="wide">샌드박스로 돌아가기</button>
+    </div>
+  </dialog>
+  <dialog id="mission-result-overlay" aria-labelledby="mission-result-title">
+    <div class="dialog-body result">
+      <p class="eyebrow">MISSION COMPLETE</p>
+      <h2 id="mission-result-title">미션 완료!</h2>
+      <section id="mission-result-record" class="result-record-card" aria-label="미션 기록 및 별점" hidden></section>
+      <p id="mission-result-reward" class="reward-text"></p>
+      <section id="mission-result-collection" class="collection-goal" aria-label="다음 외형 수집 목표"></section>
+      <p id="mission-bonus-status" class="notice info" role="status" aria-live="polite" hidden></p>
+      <p id="result-save-status" class="notice" role="status" hidden></p>
+      <div class="result-actions">
+        <button id="btn-mission-rewarded-ad" class="bonus-btn" hidden></button>
+        <button id="btn-mission-next" class="primary">다음 미션</button>
+        <button id="btn-mission-retry">재도전</button>
+        <button id="btn-mission-result-close" class="quiet">샌드박스로</button>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="shop-overlay" aria-labelledby="shop-title">
+    <div class="dialog-body">
+      <p class="eyebrow">MAKE IT YOUR WORLD</p>
+      <div class="heading-row"><h2 id="shop-title">행성 외형 상점</h2><span id="shop-balance" class="wallet">0 코인</span></div>
+      <p class="muted">미션에서 얻은 코인으로 구매합니다.<br>외형만 바뀌며 파괴 흔적은 유지됩니다. 상점을 열면 진행 중인 미션은 종료됩니다.</p>
+      <section id="shop-collection-goal" class="collection-goal" aria-label="다음 외형 수집 목표"></section>
+      <ul id="shop-list"></ul>
+      <p id="shop-status" role="status" aria-live="polite"></p>
+      <section id="iap-section" class="iap-section" aria-labelledby="iap-heading">
+        <h3 id="iap-heading">광고 제거</h3>
+        <div id="iap-content"></div>
+        <p id="iap-status" class="notice" role="status" aria-live="polite" hidden></p>
+      </section>
+      <p id="shop-save-status" class="notice" role="status" hidden></p>
+      <button id="btn-shop-close" class="wide">게임으로 돌아가기</button>
+    </div>
+  </dialog>
+  <dialog id="settings-overlay" aria-labelledby="settings-title">
+    <div class="dialog-body">
+      <p class="eyebrow">YOUR PLAY, YOUR WAY</p><h2 id="settings-title">설정</h2>
+      <p class="muted">설정과 조작 안내를 보는 동안 게임이 일시 정지됩니다. 진행 중인 미션은 유지됩니다.</p>
+      <label class="setting-item" for="toggle-sound"><span>효과음</span><input type="checkbox" id="toggle-sound"></label>
+      <div class="setting-volume"><label for="range-volume">음량 <output id="volume-value" for="range-volume">35%</output></label><input type="range" id="range-volume" min="0" max="100" step="1"></div>
+      <label class="setting-item" for="toggle-haptics"><span>햅틱 (진동)</span><input type="checkbox" id="toggle-haptics" aria-describedby="haptics-description"></label>
+      <p id="haptics-description" class="muted"></p>
+      <div class="result-actions">
+        <button id="btn-camera-reset">카메라 초기화</button>
+        <button id="btn-show-tutorial">조작 안내 다시 보기</button>
+        <button id="btn-privacy-options" hidden>개인정보 및 광고 동의 설정</button>
+        <button id="btn-settings-close" class="primary">게임으로 돌아가기</button>
+      </div>
+      <p id="settings-save-status" class="notice" role="status" hidden></p>
+    </div>
+  </dialog>
+  <dialog id="tutorial-overlay" aria-labelledby="tutorial-title">
+    <div class="dialog-body">
+      <p class="eyebrow">WELCOME, PLANET BREAKER</p><h2 id="tutorial-title">한 번 켜고, 시원하게 파괴하세요</h2>
+      <ul class="tutorial-list">
+        <li><strong>자동공격 켜기 / 끄기</strong><span>아래 큰 버튼을 누르면 조준점 방향으로 계속 공격합니다. 다시 누르면 멈춰요. 천체를 직접 탭해서 쏠 수도 있어요.</span></li>
+        <li><strong>드래그해서 회전</strong><span>한 손가락이나 마우스로 움직여 다른 면을 살펴보세요.</span></li>
+        <li><strong>핀치 / 휠로 확대·축소</strong><span>두 손가락 간격을 바꾸거나 마우스 휠을 사용하세요.</span></li>
+        <li><strong>미션 → 코인 → 외형</strong><span>미션 첫 완료 코인으로 마음에 드는 행성을 수집하세요.</span></li>
+      </ul>
+      <p class="muted">메뉴를 열거나 앱을 벗어나면 자동공격이 꺼집니다. 돌아온 뒤 버튼으로 다시 시작하세요. 설정에서 안내를 다시 볼 수 있어요.</p>
+      <button id="btn-tutorial-close" class="primary wide">시작하기 · 안내 닫기</button>
+    </div>
+  </dialog>
+  <script type="module" src="../src/main.js"></script>
+</body>
+</html>
